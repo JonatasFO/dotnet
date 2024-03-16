@@ -12,6 +12,8 @@ public class CinemaProfile : Profile
         CreateMap<Cinema, ReadCinemaDto>()
             .ForMember(cinemaDto => cinemaDto.Endereco,
             opt => opt.MapFrom(cinema => cinema.Endereco))
+            .ForMember(cinemaDto => cinemaDto.Sessoes,
+            opt => opt.MapFrom(cinema => cinema.Sessoes))
             .ReverseMap();
         CreateMap<UpdateCinemaDto, Cinema>().ReverseMap();
     }
