@@ -35,13 +35,24 @@ public class FilmeController : ControllerBase
         _context.Filmes.Add(filme);
         _context.SaveChanges();
 
-        return CreatedAtAction(nameof(RecuperaFilmePorId), new { id = filme.Id } , filme);
+        return CreatedAtAction(nameof(RecuperaFilmePorId), new { id = filme.Id }, filme);
     }
 
     [HttpGet]
-    public IEnumerable<ReadFilmeDto> RecuperaFilmes([FromQuery] int skip = 0, [FromQuery] int take = 50)
+    public IEnumerable<ReadFilmeDto> RecuperaFilmes([FromQuery] int skip = 0,
+        [FromQuery] int take = 50,
+        [FromQuery] string? nomeCinema = null)
     {
-        return _mapper.Map<List<ReadFilmeDto>>(_context.Filmes.Skip(skip).Take(take).ToList());
+        if (nomeCinema == null)
+        {
+            return _mapper.Map<List<ReadFilmeDto>>(_context.Filmes.Skip(skip).Take(take).ToList());
+        }
+
+        return _mapper.Map<List<ReadFilmeDto>>(_context.Filmes
+            .Skip(skip)
+            .Take(take)
+            .Where(filme => filme.Sessoes.Any(sessao => sessao.Cinema.Nome == nomeCinema))
+            .ToList());
     }
 
     [HttpGet("{id}")]
@@ -80,7 +91,7 @@ public class FilmeController : ControllerBase
             return ValidationProblem(ModelState);
         }
 
-        _mapper.Map(filmeParaAtualizar, filme); 
+        _mapper.Map(filmeParaAtualizar, filme);
         _context.SaveChanges();
 
         return NoContent();
